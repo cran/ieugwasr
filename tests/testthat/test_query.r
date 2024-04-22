@@ -1,6 +1,6 @@
-skip()
+# skip()
 skip_on_cran()
-skip_on_ci()
+# skip_on_ci()
 
 a <- api_status()
 if(inherits(a, "response")) skip("Server issues")
@@ -14,7 +14,7 @@ test_that("get_query_content", {
 test_that("gwasinfo", 
 {
 	expect_true(
-		nrow(api_query('gwasinfo/ieu-a-2',access_token=NULL) %>% get_query_content()) == 1
+		nrow(api_query('gwasinfo/ieu-a-2') %>% get_query_content()) == 1
 	)
 	expect_equal(
 		nrow(api_query('gwasinfo', query=list(id=c("ieu-a-2","ieu-a-1001"))) %>% get_query_content()), 
@@ -25,6 +25,13 @@ test_that("gwasinfo",
 		100
 	)
 })
+
+test_that("gwasinfo without token", {
+	a1 <- gwasinfo("ieu-a-2", opengwas_jwt="")
+	a2 <- gwasinfo("ieu-a-2")
+	expect_true(all(a1 == a2, na.rm=TRUE))
+})
+
 
 test_that("associations",
 {
@@ -53,8 +60,10 @@ test_that("fill_n",
 test_that("phewas",
 {
 	a <- phewas("rs977747", 0.01)
+	if(inherits(a, "response")) skip("Server issues")
 	expect_true(nrow(a)>100)
 	b <- phewas("rs977747", 0.01, batch=c("ieu-a"))
+	if(inherits(b, "response")) skip("Server issues")
 	expect_true(nrow(b) < nrow(a))
 	expect_true(nrow(b) > 0)
 })
@@ -84,5 +93,22 @@ test_that("tophits",
 test_that("batch", {
 	b <- batch_from_id(c("ieu-a-1", "ukb-b-100-10"))
 	expect_true(all(b == c("ieu-a", "ukb-b")))
+})
+
+test_that("user", {
+
+	# with no key
+	u1 <- user(opengwas_jwt="")
+	expect_true(inherits(u1, "response"))
+
+	skip_on_cran()
+	skip_on_ci()
+
+	# make sure valid jwt is in .Renviron
+	key <- get_opengwas_jwt()
+	expect_true(nchar(key) > 0)
+	
+	u2 <- user()
+	expect_false(inherits(u2, "response"))
 })
 

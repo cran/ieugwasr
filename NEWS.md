@@ -1,3 +1,13 @@
+# ieugwasr 1.0.0
+* Introducing JWT authorisation for the API
+* Phasing out Google Oauth2 authorisation
+* Added user() function to get user information
+* Fixing issue with anonymous functions and backwards compatibility
+* Bug in tophits when result is empty
+* Removing version check at startup
+* Bug in querying when errors returned
+* Removing unnecessary dependancies and vignettes
+
 # ieugwasr 0.2.2
 * Reinstating https://api.opengwas.org/api/ as the API server address
 * Fixing issues with tests failing when server load is an issue
