@@ -11,12 +11,16 @@
 #' @param encode Default = `"json"`, see [`httr::POST`] for options
 #' @param timeout Default = `300`, avoid increasing this, preferentially 
 #' simplify the query first.
+#' @param override_429 Default=FALSE. If allowance is exceeded then the query will error before submitting a request to avoid getting blocked. If you are sure you want to submit the request then set this to TRUE.
 #'
 #' @export
 #' @return httr response object
 api_query <- function(path, query=NULL, opengwas_jwt=get_opengwas_jwt(), 
-                      method="GET", silent=TRUE, encode="json", timeout=300)
+                      method="GET", silent=TRUE, encode="json", timeout=300, override_429=FALSE)
 {
+	# check if previous query gave 429 error, and allowance was maxed out
+	check_reset(override_429)
+
 	ntry <- 0
 	ntries <- 5
 	if(opengwas_jwt == "") {
@@ -72,11 +76,19 @@ api_query <- function(path, query=NULL, opengwas_jwt=get_opengwas_jwt(),
 		{
 			if(grepl("Timeout", as.character(attributes(r)$condition)))
 			{
-				stop("The query to MR-Base exceeded ", timeout, " seconds and timed out. Please simplify the query")
+				stop("The query to MR-Base exceeded ", timeout, " seconds and timed out. Potential reasons:
+				- You have a bad internet connection
+				- The query was very large and it timed out
+				- You have maxed out your allowance, and kept submitting requests, which led to your IP address being temporarily blocked. See here for details: https://api.opengwas.io/api/#allowance")
 			}
 		}
+
 		if(! inherits(r, 'try-error'))
 		{
+			if(r$status_code == 429) {
+				set_reset(r)
+				return(r)
+			}
 			if(r$status_code >= 500 & r$status_code < 600)
 			{
 				message("Server code: ", r$status_code, "; Server is possibly experiencing traffic, trying again...")
@@ -115,6 +127,50 @@ api_query <- function(path, query=NULL, opengwas_jwt=get_opengwas_jwt(),
 	return(r)
 }
 
+#' Set the reset time for OpenGWAS allowance
+#'
+#' This function sets the reset time for the OpenGWAS allowance based on the retry-after header
+#' returned by the API response. It also displays a warning message indicating the time at which
+#' the allowance will reset.
+#' 
+#'
+#' @param r The API response object
+#' @return None
+set_reset <- function(r) {
+	ret <- as.numeric(Sys.time()) + as.numeric(r$headers$`retry-after`)
+	options(ieugwasr_reset=ret)
+	warning("You have used up your OpenGWAS allowance. Your allowance will reset at ", as.POSIXct(ret), ". See https://api.opengwas.io/api/#allowance for more details.")
+}
+
+
+#' Check if OpenGWAS allowance needs to be reset
+#'
+#' This function checks if a recent query indicated that the OpenGWAS allowance has been used up. To prevent the IP being blocked, it will error if the new query is being submitted before the reset time.
+#' If the allowance has been used up, it displays a message indicating the time when the allowance will be reset.
+#' By default, the function will throw an error if the allowance has been used up, but this behavior can be overridden by setting `override_429` to `TRUE`.
+#'
+#' @param override_429 Logical value indicating whether to override the allowance reset check (default: FALSE)
+#'
+#' @return NULL
+check_reset <- function(override_429=FALSE) {
+	if(! is.null(options()$ieugwasr_reset)) {
+		if(as.numeric(Sys.time()) < options()$ieugwasr_reset) {
+			rt <- as.POSIXct(options()$ieugwasr_reset)
+			msg <- paste0("You have used up your OpenGWAS allowance. Please wait until ", rt, "to submit another query. See https://api.opengwas.io/api/#allowance for more details. This check is in place to prevent your IP address from being temporarily blocked, but you can override it at your own risk by setting override_429=TRUE.")
+			if(!override_429) {
+				stop(msg)
+			} else {
+				warning(msg)
+			}
+		} else {
+			options(ieugwasr_reset=NULL)
+		}
+	} else {
+		options(ieugwasr_reset=NULL)
+	}
+	return(NULL)
+}
+
 
 #' Parse out json response from httr object
 #'
@@ -137,6 +193,7 @@ get_query_content <- function(response)
 		return(response)
 		# stop("error code: ", httr::status_code(response), "\n  message: ", jsonlite::fromJSON(httr::content(response, "text", encoding='UTF-8')))
 	}
+	return(NULL)
 }
 
 
@@ -146,7 +203,7 @@ get_query_content <- function(response)
 #' @return list of values regarding status
 api_status <- function()
 {
-	o <- api_query('status') %>% get_query_content
+	o <- api_query('status', override_429=TRUE) %>% get_query_content
 	class(o) <- "ApiStatus"
 	return(o)
 }
@@ -219,7 +276,7 @@ batch_from_id <- function(id)
 #' @return data frame
 batches <- function(opengwas_jwt=get_opengwas_jwt())
 {
-	api_query('batches', opengwas_jwt=opengwas_jwt) %>% get_query_content()
+	api_query('batches', opengwas_jwt=opengwas_jwt, override_429=TRUE) %>% get_query_content()
 }
 
 #' Query specific variants from specific GWAS

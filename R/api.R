@@ -48,7 +48,7 @@ user <- function(opengwas_jwt=get_opengwas_jwt()) {
 	if(nchar(opengwas_jwt)>0) {
 		message("Important note: do not share your token with others as it is equivalent to a password.")
 	}
-	api_query('user', opengwas_jwt=opengwas_jwt) %>% get_query_content()
+	api_query('user', opengwas_jwt=opengwas_jwt, override_429=TRUE) %>% get_query_content()
 }
 
 

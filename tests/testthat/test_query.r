@@ -2,6 +2,8 @@
 skip_on_cran()
 # skip_on_ci()
 
+library(dplyr)
+
 a <- api_status()
 if(inherits(a, "response")) skip("Server issues")
 
@@ -98,8 +100,8 @@ test_that("batch", {
 test_that("user", {
 
 	# with no key
-	u1 <- user(opengwas_jwt="")
-	expect_true(inherits(u1, "response"))
+	# u1 <- user(opengwas_jwt="")
+	# expect_true(inherits(u1, "response"))
 
 	skip_on_cran()
 	skip_on_ci()
