@@ -364,9 +364,9 @@ below.</p>
 <p>The API has a wrapper around <a href="https://www.cog-genomics.org/plink/1.9">plink version 1.90</a> and
 can use it to perform clumping with an LD reference panel from 1000
 genomes reference data.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">tophits</span>(<span class="at">id=</span><span class="st">&quot;ieu-a-2&quot;</span>, <span class="at">clump=</span><span class="dv">0</span>)</span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">tophits</span>(<span class="at">id=</span><span class="st">&quot;ieu-a-2&quot;</span>, <span class="at">clump =</span> <span class="dv">0</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">ld_clump</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">rsid=</span>a<span class="sc">$</span>name, <span class="at">pval=</span>a<span class="sc">$</span>p, <span class="at">id=</span>a<span class="sc">$</span>id)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">rsid =</span> a<span class="sc">$</span>rsid, <span class="at">pval =</span> a<span class="sc">$</span>p, <span class="at">id =</span> a<span class="sc">$</span>id)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>There are 5 super-populations that can be requested via the
 <code>pop</code> argument. By default this will use the Europeans subset
@@ -375,7 +375,7 @@ retains SNPs with MAF &gt; 0.01 in the selected population.</p>
 <p>Note that you can perform the same operation locally if you provide a
 path to plink and a bed/bim/fam LD reference dataset.</p>
 <p>To get a path to plink you can do the following:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;explodecomputer/genetics.binaRies&quot;</span>)</span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;MRCIEU/genetics.binaRies&quot;</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>genetics.binaRies<span class="sc">::</span><span class="fu">get_plink_binary</span>()</span></code></pre></div>
 <p>To get the same LD reference dataset that is used by the API, you can
 download it directly from here:</p>
@@ -397,7 +397,7 @@ following columns:</p>
 </ul>
 <p>to perform clumping, just do the following:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ld_clump</span>(</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">rsid=</span>dat<span class="sc">$</span>rsid, <span class="at">pval=</span>dat<span class="sc">$</span>pval, <span class="at">id=</span>dat<span class="sc">$</span>trait_id),</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">rsid =</span> dat<span class="sc">$</span>rsid, <span class="at">pval =</span> dat<span class="sc">$</span>pval, <span class="at">id =</span> dat<span class="sc">$</span>trait_id),</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">plink_bin =</span> genetics.binaRies<span class="sc">::</span><span class="fu">get_plink_binary</span>(),</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">bfile =</span> <span class="st">&quot;/path/to/reference/EUR&quot;</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
@@ -409,10 +409,10 @@ following columns:</p>
 <p>This uses the API by default but is limited to only 500 variants. You
 can use, instead, local plink and LD reference data in the same manner
 as in the <code>ld_clump</code> function, e.g.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ld_matrix</span>(</span>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>ieugwasr<span class="sc">::</span><span class="fu">ld_matrix</span>(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    dat<span class="sc">$</span>rsid,</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">plink_bin =</span> genetics.binaRies<span class="sc">::</span><span class="fu">get_plink_binary</span>(),</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">bfile =</span> <span class="st">&quot;/path/to/reference/EUR&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">bfile =</span> <span class="st">&quot;/path/to/reference/EUR&quot;</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div id="ld-proxies" class="section level2">

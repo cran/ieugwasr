@@ -2,7 +2,7 @@
 #'
 #' @param where Which API to use. Choice between `"public"`, `"private"`, `"dev1"`, `"dev2"`. 
 #' Default = `"public"`.
-#' @param silent Silent? Default = FALSE
+#' @param silent Silent? Default = `FALSE`
 #'
 #' @export
 #' @return No return value, called for side effects
@@ -40,7 +40,7 @@ get_opengwas_jwt <- function() {
 
 #' Get user details
 #' 
-#' @param opengwas_jwt Used to authenticate protected endpoints. Login to https://api.opengwas.io to obtain a jwt. Provide the jwt string here, or store in .Renviron under the keyname OPENGWAS_JWT.
+#' @param opengwas_jwt Used to authenticate protected endpoints. Login to <https://api.opengwas.io> to obtain a jwt. Provide the jwt string here, or store in .Renviron under the keyname OPENGWAS_JWT.
 #' 
 #' @export
 #' @return user information
@@ -67,14 +67,13 @@ logging_info <- function()
 }
 
 
-#' Check if authentication has been maded
+#' Check if authentication has been made
 #'
-#' Deprectated. Use `get_opengwas_jwt()` instead. See https://mrcieu.github.io/ieugwasr/articles/guide.html#authentication for more information.
+#' Deprecated. Use `get_opengwas_jwt()` instead. See <https://mrcieu.github.io/ieugwasr/articles/guide.html#authentication> for more information.
 #'
 #' @export
 #' @return NULL or access_token depending on current authentication state
 check_access_token <- function()
 {
-	message("Deprectated. Use `get_opengwas_jwt()` instead. See https://mrcieu.github.io/ieugwasr/articles/guide.html#authentication for more information.")
+	message("Deprecated. Use `get_opengwas_jwt()` instead. See https://mrcieu.github.io/ieugwasr/articles/guide.html#authentication for more information.")
 }
-

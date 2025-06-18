@@ -2,13 +2,13 @@
 % Please edit documentation in R/query.R
 \name{api_status}
 \alias{api_status}
-\title{MR-Base server status}
+\title{OpenGWAS server status}
 \usage{
 api_status()
 }
 \value{
-list of values regarding status
+List of values regarding status
 }
 \description{
-MR-Base server status
+OpenGWAS server status
 }

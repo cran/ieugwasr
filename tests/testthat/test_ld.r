@@ -1,6 +1,6 @@
 # skip()
 skip_on_cran()
-# skip_on_ci()
+skip_on_ci()
 
 library(dplyr)
 
@@ -60,4 +60,3 @@ test_that("ld_reflookup", {
 	if (inherits(a, c("try-error", "response"))) skip("Server issues")
 	expect_true(a == "rs234")
 })
-
