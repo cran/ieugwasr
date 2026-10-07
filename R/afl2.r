@@ -21,9 +21,9 @@ afl2_list <- function(variantlist="reduced", opengwas_jwt=get_opengwas_jwt(), ..
 			dplyr::as_tibble() %>%
 			return()
 	} else if (variantlist == "hapmap3") {
-		url("http://fileserve.mrcieu.ac.uk/ld/hm3_afl2.rds", "rb") %>%
-		readRDS() %>%
-			return()
+		con <- url("http://fileserve.mrcieu.ac.uk/ld/hm3_afl2.rds", "rb")
+		on.exit(close(con))
+		return(readRDS(con))
 	} else {
 		message("variantlist ", variantlist, " not recognised")
 		return(NULL)
@@ -47,7 +47,7 @@ afl2_rsid <- function(rsid, reference="1000g", opengwas_jwt=get_opengwas_jwt(), 
 	{
 		return(out)
 	} else if(is.data.frame(out)) {
-		out %>% dplyr::as_tibble() %>% return()
+		return(out %>% dplyr::as_tibble())
 	} else {
 		return(dplyr::tibble())
 	}
@@ -70,7 +70,7 @@ afl2_chrpos <- function(chrpos, reference="1000g", opengwas_jwt=get_opengwas_jwt
 	{
 		return(out)
 	} else if(is.data.frame(out)) {
-		out %>% dplyr::as_tibble() %>% return()
+		return(out %>% dplyr::as_tibble())
 	} else {
 		return(dplyr::tibble())
 	}

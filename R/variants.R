@@ -13,7 +13,7 @@
 variants_gene <- function(gene, radius=0, opengwas_jwt=get_opengwas_jwt(), ...)
 {
 	l <- list()
-	for(i in 1:length(gene))
+	for(i in seq_along(gene))
 	{
 		message("Looking up ", gene[i])
 		o <- api_query(paste0('variants/gene/', gene[i], "?radius=", format(radius, scientific=FALSE)), opengwas_jwt=opengwas_jwt, ...) %>% get_query_content()
@@ -45,7 +45,7 @@ variants_rsid <- function(rsid, opengwas_jwt=get_opengwas_jwt(), ...)
 		{
 			o <- dplyr::bind_rows(o)
 		}
-		cbind(o[["_id"]], o[["_source"]]) %>% dplyr::rename(query=1) %>% format_variants() %>% return()
+		return(cbind(o[["_id"]], o[["_source"]]) %>% dplyr::rename(query=1) %>% format_variants())
 	} else {
 		return(o)
 	}
@@ -66,11 +66,11 @@ variants_rsid <- function(rsid, opengwas_jwt=get_opengwas_jwt(), ...)
 #' @return Data frame
 variants_chrpos <- function(chrpos, radius=0, opengwas_jwt=get_opengwas_jwt(), ...)
 {
-	o <- api_query("variants/chrpos", list(chrpos = chrpos, radius=radius), opengwas_jwt=opengwas_jwt) %>% get_query_content() 
+	o <- api_query("variants/chrpos", list(chrpos = chrpos, radius=radius), opengwas_jwt=opengwas_jwt, ...) %>% get_query_content()
 
 	if(! inherits(o, "response"))
 	{
-		o %>% dplyr::bind_rows() %>% format_variants() %>% return()
+		return(o %>% dplyr::bind_rows() %>% format_variants())
 	} else {
 		return(o)
 	}

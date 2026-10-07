@@ -39,7 +39,7 @@ panel with a slightly different set of markers}
 packaged plink binary for specific OS. Otherwise specify path to plink binary.
 Default = \code{NULL},}
 
-\item{...}{Additional arguments passed to \code{ld_clump_local()}.}
+\item{...}{Additional arguments passed to \code{\link[=ld_clump_api]{ld_clump_api()}}.}
 }
 \value{
 Data frame

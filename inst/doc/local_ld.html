@@ -48,6 +48,7 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -352,22 +353,22 @@ below.</p>
 <li>Generating LD matrices</li>
 <li>Looking for LD proxies</li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ieugwasr)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; OpenGWAS updates:</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Date: 2024-05-17</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [&gt;] OpenGWAS is growing!</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [&gt;] Please take 2 minutes to give us feedback -</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [&gt;] It will help directly shape our emerging roadmap</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [&gt;] https://forms.office.com/e/eSr7EFAfCG</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(ieugwasr)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#&gt; OpenGWAS updates:</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt;   Date: 2024-05-17</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt;   [&gt;] OpenGWAS is growing!</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt;   [&gt;] Please take 2 minutes to give us feedback -</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt;   [&gt;] It will help directly shape our emerging roadmap</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt;   [&gt;] https://forms.office.com/e/eSr7EFAfCG</span></span></code></pre></div>
 <div id="ld-clumping" class="section level2">
 <h2>LD clumping</h2>
 <p>The API has a wrapper around <a href="https://www.cog-genomics.org/plink/1.9">plink version 1.90</a> and
 can use it to perform clumping with an LD reference panel from 1000
 genomes reference data.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">tophits</span>(<span class="at">id=</span><span class="st">&quot;ieu-a-2&quot;</span>, <span class="at">clump =</span> <span class="dv">0</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">ld_clump</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">rsid =</span> a<span class="sc">$</span>rsid, <span class="at">pval =</span> a<span class="sc">$</span>p, <span class="at">id =</span> a<span class="sc">$</span>id)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">tophits</span>(<span class="at">id=</span><span class="st">&quot;ieu-a-2&quot;</span>, <span class="at">clump =</span> <span class="dv">0</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">ld_clump</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">rsid =</span> a<span class="sc">$</span>rsid, <span class="at">pval =</span> a<span class="sc">$</span>p, <span class="at">id =</span> a<span class="sc">$</span>id)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>)</span></code></pre></div>
 <p>There are 5 super-populations that can be requested via the
 <code>pop</code> argument. By default this will use the Europeans subset
 (EUR super-population). The reference panel has INDELs removed and only
@@ -375,8 +376,8 @@ retains SNPs with MAF &gt; 0.01 in the selected population.</p>
 <p>Note that you can perform the same operation locally if you provide a
 path to plink and a bed/bim/fam LD reference dataset.</p>
 <p>To get a path to plink you can do the following:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;MRCIEU/genetics.binaRies&quot;</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>genetics.binaRies<span class="sc">::</span><span class="fu">get_plink_binary</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;MRCIEU/genetics.binaRies&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>genetics.binaRies<span class="sc">::</span><span class="fu">get_plink_binary</span>()</span></code></pre></div>
 <p>To get the same LD reference dataset that is used by the API, you can
 download it directly from here:</p>
 <p><a href="http://fileserve.mrcieu.ac.uk/ld/1kg.v3.tgz" class="uri">http://fileserve.mrcieu.ac.uk/ld/1kg.v3.tgz</a></p>
@@ -396,24 +397,24 @@ following columns:</p>
 <li><code>trait_id</code></li>
 </ul>
 <p>to perform clumping, just do the following:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ld_clump</span>(</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">rsid =</span> dat<span class="sc">$</span>rsid, <span class="at">pval =</span> dat<span class="sc">$</span>pval, <span class="at">id =</span> dat<span class="sc">$</span>trait_id),</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">plink_bin =</span> genetics.binaRies<span class="sc">::</span><span class="fu">get_plink_binary</span>(),</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">bfile =</span> <span class="st">&quot;/path/to/reference/EUR&quot;</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">ld_clump</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">rsid =</span> dat<span class="sc">$</span>rsid, <span class="at">pval =</span> dat<span class="sc">$</span>pval, <span class="at">id =</span> dat<span class="sc">$</span>trait_id),</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>    <span class="at">plink_bin =</span> genetics.binaRies<span class="sc">::</span><span class="fu">get_plink_binary</span>(),</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    <span class="at">bfile =</span> <span class="st">&quot;/path/to/reference/EUR&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div id="ld-matrix" class="section level2">
 <h2>LD matrix</h2>
 <p>Similarly, a matrix of LD r values can be generated using</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ld_matrix</span>(b<span class="sc">$</span>variant)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">ld_matrix</span>(b<span class="sc">$</span>variant)</span></code></pre></div>
 <p>This uses the API by default but is limited to only 500 variants. You
 can use, instead, local plink and LD reference data in the same manner
 as in the <code>ld_clump</code> function, e.g.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>ieugwasr<span class="sc">::</span><span class="fu">ld_matrix</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    dat<span class="sc">$</span>rsid,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">plink_bin =</span> genetics.binaRies<span class="sc">::</span><span class="fu">get_plink_binary</span>(),</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">bfile =</span> <span class="st">&quot;/path/to/reference/EUR&quot;</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>ieugwasr<span class="sc">::</span><span class="fu">ld_matrix</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>    dat<span class="sc">$</span>rsid,</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>    <span class="at">plink_bin =</span> genetics.binaRies<span class="sc">::</span><span class="fu">get_plink_binary</span>(),</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">bfile =</span> <span class="st">&quot;/path/to/reference/EUR&quot;</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div id="ld-proxies" class="section level2">
 <h2>LD proxies</h2>

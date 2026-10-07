@@ -1,3 +1,35 @@
+# ieugwasr 1.2.0
+
+* `associations()` now returns the processed tibble. Previously its `... %>% return()` inside a pipe did not return from the function (since magrittr 2.0), so the raw server data frame was returned instead, with `n` as character.
+* Remove the flipping of `beta` for `ukb-e` datasets in `associations()`, `tophits()` and `phewas()`. The flip was never applied in `associations()` (see above), and the OpenGWAS server is the right place to correct these datasets.
+* Replace `%>% return()` with explicit `return()` calls throughout.
+* Update some GitHub Actions workflows, including no longer testing on R before R 4.1 due to the new testthat requirements
+* Tweak an API test
+* Bump version of roxygen2
+* Fix a typo in the documentation for `ld_clump()`
+* Bump minimum required version of R to 4.1
+* Update some URLs in the package
+* Fix some typos in the docs
+* Forward `...` to `api_query()` in `variants_chrpos()`
+* Prevent divide-by-zero chunking in `associations()`
+* Handle `NULL` `opengwas_jwt` in `api_query()`
+* Close connection in `afl2_list()` hapmap3 branch
+* Harden `fill_n()` against empty or multi-row `gwasinfo()` results
+* Use `getOption()` instead of copying the full options list
+* Remove dead shadowing assignment in `associations()`
+* Use `seq_along()`/`seq_len()` instead of `1:length()` loop bounds
+* Align `ld_clump_api()` defaults with its documentation
+* Make `get_query_content()` error path robust to non-JSON bodies
+* Fix empty-result check in `tophits()` (closes #76)
+* Supply `origin` to `as.POSIXct()` in allowance reset handling (closes #103)
+* Remove **utils** from Suggests, since it's a Base package
+
+# ieugwasr 1.1.0
+
+* Improved error handling
+* Managing new API limits on associations endpoint
+* Updated header info passed to API
+
 # ieugwasr 1.0.4
 
 * Improved warning messages in `ld_clump()` (thanks @DarwinAwardWinner).
