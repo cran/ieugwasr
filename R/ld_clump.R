@@ -32,12 +32,16 @@
 #' @param plink_bin If `NULL` and `bfile` is not `NULL` then will detect 
 #' packaged plink binary for specific OS. Otherwise specify path to plink binary. 
 #' Default = `NULL`,
+#' @param tmpdir Directory in which to write the temporary files used by plink when `bfile` is provided. Default = [`tempdir()`]
+#' @param threads Number of threads plink may use when `bfile` is provided, passed as `--threads`. Default = `NULL`, plink's own default (all available cores)
+#' @param memory Memory in MiB plink may reserve when `bfile` is provided, passed as `--memory`. Default = `NULL`, plink's own default (half the system's RAM)
 #' @param ... Additional arguments passed to [`ld_clump_api()`].
 #'
 #' @export
 #' @return Data frame
 ld_clump <- function(dat=NULL, clump_kb=10000, clump_r2=0.001, clump_p=0.99, 
-                     pop = "EUR", opengwas_jwt=get_opengwas_jwt(), bfile=NULL, plink_bin=NULL, ...)
+                     pop = "EUR", opengwas_jwt=get_opengwas_jwt(), bfile=NULL, plink_bin=NULL, tmpdir=tempdir(),
+                     threads=NULL, memory=NULL, ...)
 {
 
 	stopifnot("rsid" %in% names(dat))
@@ -82,13 +86,14 @@ ld_clump <- function(dat=NULL, clump_kb=10000, clump_r2=0.001, clump_p=0.99,
 			message("Only one SNP for ", ids[i])
 			res[[i]] <- x
 		} else {
+			warn_tied_pval(x[["pval"]], clump_p, ids[i])
 			if(is.null(bfile))
 			{
 			  message("Clumping ", ids[i], ", ", nrow(x), " variants, using ", pop, " population reference")
 			  res[[i]] <- ld_clump_api(x, clump_kb=clump_kb, clump_r2=clump_r2, clump_p=clump_p, pop=pop, opengwas_jwt=opengwas_jwt, ...)
 			} else {
 			  message("Clumping ", ids[i], ", ", nrow(x), " variants, using: ", bfile)
-				res[[i]] <- ld_clump_local(x, clump_kb=clump_kb, clump_r2=clump_r2, clump_p=clump_p, bfile=bfile, plink_bin=plink_bin)
+				res[[i]] <- ld_clump_local(x, clump_kb=clump_kb, clump_r2=clump_r2, clump_p=clump_p, bfile=bfile, plink_bin=plink_bin, tmpdir=tmpdir, threads=threads, memory=memory)
 			}
 		}
 	}
@@ -141,16 +146,21 @@ ld_clump_api <- function(dat, clump_kb=10000, clump_r2=0.001, clump_p=1, pop="EU
 #' @param bfile If this is provided then will use the API. Default = `NULL`
 #' @param plink_bin Specify path to plink binary. Default = `NULL`. 
 #' See \url{https://github.com/MRCIEU/genetics.binaRies} for convenient access to plink binaries
+#' @param tmpdir Directory in which to write the temporary files used by plink. Default = [`tempdir()`]
+#' @param threads Number of threads plink may use, passed as `--threads`. Default = `NULL`, plink's own default (all available cores)
+#' @param memory Memory in MiB plink may reserve, passed as `--memory`. Default = `NULL`, plink's own default (half the system's RAM)
 #' @importFrom utils read.table
 #' @importFrom utils write.table
 #' @export
 #' @return data frame of clumped variants
-ld_clump_local <- function(dat, clump_kb, clump_r2, clump_p, bfile, plink_bin)
+ld_clump_local <- function(dat, clump_kb, clump_r2, clump_p, bfile, plink_bin, tmpdir=tempdir(), threads=NULL, memory=NULL)
 {
+	if(!dir.exists(tmpdir)) stop("tmpdir does not exist: ", tmpdir)
+	resources <- plink_resource_flags(threads, memory)
 
 	# Make textfile
 	shell <- ifelse(Sys.info()['sysname'] == "Windows", "cmd", "sh")
-	fn <- tempfile()
+	fn <- tempfile(tmpdir=tmpdir)
 	write.table(data.frame(SNP=dat[["rsid"]], P=dat[["pval"]]), file=fn, row.names=FALSE, col.names=TRUE, quote=FALSE)
 
 	fun2 <- paste0(
@@ -160,9 +170,27 @@ ld_clump_local <- function(dat, clump_kb, clump_r2, clump_p, bfile, plink_bin)
 		" --clump-p1 ", clump_p, 
 		" --clump-r2 ", clump_r2, 
 		" --clump-kb ", clump_kb, 
+		resources,
 		" --out ", shQuote(fn, type=shell)
 	)
-	system(fun2)
+	status <- system(fun2)
+	# plink writes no .clumped file if no variants pass clumping, or if it fails
+	if(!file.exists(paste(fn, ".clumped", sep="")))
+	{
+		log <- paste(fn, ".log", sep="")
+		log <- if(file.exists(log)) readLines(log) else character(0)
+		unlink(paste(fn, "*", sep=""))
+		if(any(grepl("No significant --clump results", log)))
+		{
+			message("Removing all ", nrow(dat), " variants: none had a p-value below clump_p and were present in the LD reference panel")
+			return(dat[0, ])
+		}
+		stop(
+			"plink clumping failed (exit status ", status, "). ",
+			"Check that bfile is the path to the .bed/.bim/.fam files without the extension, and that plink_bin is a working plink 1.9 binary.",
+			if(length(log) > 0) paste0("\nEnd of plink log:\n", paste(utils::tail(log, 10), collapse="\n"))
+		)
+	}
 	res <- read.table(paste(fn, ".clumped", sep=""), header=TRUE)
 	unlink(paste(fn, "*", sep=""))
 	y <- subset(dat, !dat[["rsid"]] %in% res[["SNP"]])
@@ -171,6 +199,43 @@ ld_clump_local <- function(dat, clump_kb, clump_r2, clump_p, bfile, plink_bin)
 		message("Removing ", length(y[["rsid"]]), " of ", nrow(dat), " variants due to LD with other variants or absence from LD reference panel")
 	}
 	return(subset(dat, dat[["rsid"]] %in% res[["SNP"]]))
+}
+
+# Warn if the smallest p-value is shared by several variants, e.g. because of
+# numerical underflow or p-values capped by other software, since plink then
+# chooses the lead variant among them arbitrarily (#39)
+warn_tied_pval <- function(pval, clump_p, id)
+{
+	if(all(is.na(pval))) return(invisible())
+	p <- min(pval, na.rm=TRUE)
+	n <- sum(pval == p, na.rm=TRUE)
+	if(n > 1 && p <= clump_p)
+	{
+		warning(
+			n, " variants for ", id, " share the smallest p-value (", format(p), "), ",
+			"e.g. because of numerical underflow or p-values capped by other software. ",
+			"The lead variant among them will be chosen arbitrarily, not by strength of association. ",
+			"If the p-values were capped, e.g. by TwoSampleMR::format_data() (min_pval = 1e-200 by default), consider lowering the cap, e.g. to 1e-300."
+		)
+	}
+	invisible()
+}
+
+# plink's --threads and --memory flags, or "" for those left NULL so that plink
+# uses its own defaults. The values are pasted into the shell command unquoted,
+# so each must be a single positive whole number (#41)
+plink_resource_flags <- function(threads=NULL, memory=NULL)
+{
+	flag <- function(x, name)
+	{
+		if(is.null(x)) return("")
+		if(!is.numeric(x) || length(x) != 1 || !is.finite(x) || x < 1 || x != round(x))
+		{
+			stop(name, " must be NULL or a single positive whole number")
+		}
+		paste0(" --", name, " ", sprintf("%.0f", x))
+	}
+	paste0(flag(threads, "threads"), flag(memory, "memory"))
 }
 
 random_string <- function(n=1, len=6)

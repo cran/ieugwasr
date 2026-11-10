@@ -4,7 +4,17 @@
 \alias{ld_clump_local}
 \title{Wrapper for clump function using local plink binary and ld reference dataset}
 \usage{
-ld_clump_local(dat, clump_kb, clump_r2, clump_p, bfile, plink_bin)
+ld_clump_local(
+  dat,
+  clump_kb,
+  clump_r2,
+  clump_p,
+  bfile,
+  plink_bin,
+  tmpdir = tempdir(),
+  threads = NULL,
+  memory = NULL
+)
 }
 \arguments{
 \item{dat}{Dataframe. Must have a variant name column (\code{variant}) and pval column called \code{pval}.
@@ -20,6 +30,12 @@ If \code{id} is present then clumping will be done per unique id.}
 
 \item{plink_bin}{Specify path to plink binary. Default = \code{NULL}.
 See \url{https://github.com/MRCIEU/genetics.binaRies} for convenient access to plink binaries}
+
+\item{tmpdir}{Directory in which to write the temporary files used by plink. Default = \code{\link[=tempdir]{tempdir()}}}
+
+\item{threads}{Number of threads plink may use, passed as \code{--threads}. Default = \code{NULL}, plink's own default (all available cores)}
+
+\item{memory}{Memory in MiB plink may reserve, passed as \code{--memory}. Default = \code{NULL}, plink's own default (half the system's RAM)}
 }
 \value{
 data frame of clumped variants

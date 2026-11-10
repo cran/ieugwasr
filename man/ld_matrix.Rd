@@ -11,6 +11,9 @@ ld_matrix(
   opengwas_jwt = get_opengwas_jwt(),
   bfile = NULL,
   plink_bin = NULL,
+  tmpdir = tempdir(),
+  threads = NULL,
+  memory = NULL,
   ...
 )
 }
@@ -30,6 +33,12 @@ panel with a slightly different set of markers}
 
 \item{plink_bin}{If \code{NULL} and bfile is not \code{NULL} then will detect packaged
 plink binary for specific OS. Otherwise specify path to plink binary. Default = \code{NULL}}
+
+\item{tmpdir}{Directory in which to write the temporary files used by plink when \code{bfile} is provided. Default = \code{\link[=tempdir]{tempdir()}}}
+
+\item{threads}{Number of threads plink may use when \code{bfile} is provided, passed as \code{--threads}. Default = \code{NULL}, plink's own default (all available cores)}
+
+\item{memory}{Memory in MiB plink may reserve when \code{bfile} is provided, passed as \code{--memory}. Default = \code{NULL}, plink's own default (half the system's RAM)}
 
 \item{...}{Additional arguments passed to \code{ld_matrix_api()}.}
 }
